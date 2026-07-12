@@ -5,7 +5,7 @@
 Port of [DnG-Crafts/K2-RFID](https://github.com/DnG-Crafts/K2-RFID) to a Flipper Zero external app (FAP) for Momentum firmware.
 
 ### Location
-- FAP source: `flipper/`
+- FAP source: `Flipper/`
 - Pre-built FAP (API 87.1): `dist/k2_rfid.fap`
 - Original multi-platform project: `upstream/`
 
@@ -55,10 +55,17 @@ All ASCII payload fields are exposed in **Configure Tag** with upstream defaults
 - **CFS layout:** Verified payload layout matches upstream; 40-char CFS readout omits sector-2 printer suffix by design.
 
 ### Build
-See `README.md`. Requires copying `flipper/` into Momentum `applications_user/k2_rfid` and running `./fbt fap_k2_rfid` against firmware matching the device.
+See `Flipper/README.md`. Requires copying `Flipper/` into Momentum `applications_user/k2_rfid` and running `./fbt fap_k2_rfid` against firmware matching the device.
 
 ### CI build (2026-07-12)
 - Workflow: `.github/workflows/build-fap.yml`
 - Triggers: push to `main` / `add-flipper-zero-app` (when `Flipper/` changes), tags `v*` / `flipper-*`, manual dispatch
 - SDK: official `flipperzero-firmware` @ `8622f1a2b83d8f4918dd5fa3f43de963f6d6f819` (API 87.1)
-- Output: `k2_rfid.fap` published to GitHub Release `flipper-fap-latest` (prerelease, updated each build) on `main` and `add-flipper-zero-app`; version tags publish named releases. Direct URL: `https://github.com/DnG-Crafts/K2-RFID/releases/download/flipper-fap-latest/k2_rfid.fap` (no zip — use for Flipper Application Catalog, not Actions artifacts)
+- Output: `k2_rfid.fap` published to GitHub Release `flipper-fap-latest` (prerelease, updated each build) on `main` and `add-flipper-zero-app`; version tags publish named releases. Direct URL: `https://github.com/DnG-Crafts/K2-RFID/releases/download/flipper-fap-latest/k2_rfid.fap` (no zip — sideloading; catalog CI builds from source via `commit_sha`)
+
+### Catalog compliance (2026-07-12)
+- Draft manifest: `Flipper/catalog/manifest.yml` → submit as `applications/NFC/k2_rfid/manifest.yml` in [flipper-application-catalog](https://github.com/flipperdevices/flipper-application-catalog)
+- Changelog: `Flipper/docs/changelog.md` (catalog markdown format)
+- Screenshots: `Flipper/screenshots/` — add qFlipper PNGs before catalog PR (required)
+- Icon: `Flipper/assets/icon.png` — 10×10 1-bit PNG (compliant)
+- `application.fam`: appid `k2_rfid`, category NFC, version 1.0

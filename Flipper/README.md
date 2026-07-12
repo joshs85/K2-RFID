@@ -40,13 +40,46 @@ k2_rfid.fap  →  SD:/ext/apps/NFC/k2_rfid.fap
 
 ### Flipper Application Catalog
 
-When submitting to the [Flipper Application Catalog](https://catalog.flipperzero.one/), provide:
+Catalog submission follows [flipper-application-catalog](https://github.com/flipperdevices/flipper-application-catalog) ([Contributing guide](https://github.com/flipperdevices/flipper-application-catalog/blob/main/documentation/Contributing.md)).
 
-- **FAP download URL:** the Release URL above (must end in `.fap` and return the binary directly)
+**In this repo (already prepared):**
+
+| Item | Location | Status |
+|------|----------|--------|
+| `application.fam` | `application.fam` | `k2_rfid`, NFC, v1.0, icon |
+| Icon (10×10 1-bit PNG) | `assets/icon.png` | Compliant |
+| README | `README.md` | Usage + build docs |
+| Changelog | `docs/changelog.md` | Catalog format |
+| Draft manifest | `catalog/manifest.yml` | Copy into catalog fork |
+| Screenshots | `screenshots/` | **You must add qFlipper PNGs** (see `screenshots/README.md`) |
+
+**Direct FAP URL** (sideloading; catalog CI builds from source, not this URL):
+
+```text
+https://github.com/DnG-Crafts/K2-RFID/releases/download/flipper-fap-latest/k2_rfid.fap
+```
+
+After merge to `main`, use a version tag (e.g. `flipper-v1.0`) for a stable release asset; `flipper-fap-latest` is a rolling prerelease.
+
+**Catalog PR steps:**
+
+1. Merge this app to `DnG-Crafts/K2-RFID` `main`.
+2. Capture qFlipper screenshots into `screenshots/` (see `screenshots/README.md`).
+3. Update `commit_sha` in `catalog/manifest.yml` to the merged commit on `main`.
+4. Fork [flipper-application-catalog](https://github.com/flipperdevices/flipper-application-catalog), branch `youruser/k2_rfid_1.0`.
+5. Add `applications/NFC/k2_rfid/manifest.yml` (contents from `catalog/manifest.yml`).
+6. Validate locally: `python3 tools/bundle.py --nolint applications/NFC/k2_rfid/manifest.yml bundle.zip`
+7. Open PR using the catalog template.
+
+**Metadata** (from `application.fam`; catalog reads these from source):
+
 - **App ID:** `k2_rfid`
+- **Name:** K2 RFID Writer
 - **Category:** NFC
-- **API version:** match the CI build (see release notes on the `flipper-fap-latest` release)
-- **Metadata:** name, description, author, and icon from `application.fam` in this folder
+- **Version:** 1.0
+- **Author:** DnG-Crafts / Flipper port
+- **Short description:** Write Creality K2/K1/CFS MIFARE Classic filament tags
+- **API version:** must match CI build (see `flipper-fap-latest` release notes; currently **87.1**)
 
 ## Build & Install (local)
 

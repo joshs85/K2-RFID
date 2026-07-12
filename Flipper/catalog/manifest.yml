@@ -1,0 +1,17 @@
+# Draft manifest for flipper-application-catalog PR.
+# Copy to: applications/NFC/k2_rfid/manifest.yml in your catalog fork.
+# Update commit_sha to the merged commit on DnG-Crafts/K2-RFID before submitting.
+# Validate: python3 tools/bundle.py --nolint applications/NFC/k2_rfid/manifest.yml bundle.zip
+
+sourcecode:
+  type: git
+  location:
+    origin: https://github.com/DnG-Crafts/K2-RFID.git
+    commit_sha: REPLACE_WITH_MERGED_COMMIT_SHA
+    subdir: Flipper
+description: "@README.md"
+changelog: "@docs/changelog.md"
+screenshots:
+  - screenshots/01_main_menu.png
+  - screenshots/02_configure_tag.png
+  - screenshots/03_write_tag.png

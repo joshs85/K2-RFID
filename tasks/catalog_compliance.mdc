@@ -1,0 +1,12 @@
+- [x] **Feature: Flipper Application Catalog compliance**
+  - [x] Research catalog CONTRIBUTING.md and Manifest.md requirements
+  - [x] Verify application.fam (appid, category, version, icon, author)
+  - [x] CI publishes direct k2_rfid.fap via GitHub Releases (not zip artifacts)
+  - [x] Add docs/changelog.md (catalog format)
+  - [x] Add catalog/manifest.yml draft for catalog PR
+  - [x] Add screenshots/README.md (qFlipper capture instructions)
+  - [x] Update Flipper/README.md with catalog submission guide
+  - [ ] Add qFlipper screenshots to screenshots/ (manual, before catalog PR)
+  - [ ] Update commit_sha in catalog/manifest.yml after merge to main
+  - [ ] Open PR to flipper-application-catalog (applications/NFC/k2_rfid/)
+  - [ ] Confirm open-source license on upstream repo (catalog requirement)
