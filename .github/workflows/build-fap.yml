@@ -76,25 +76,25 @@ jobs:
           test -f "$FAP_PATH"
           cp "$FAP_PATH" "../${{ env.APP_ID }}.fap"
 
-      - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.APP_ID }}
-          path: ${{ env.APP_ID }}.fap
-          if-no-files-found: error
-          retention-days: 90
-
       - name: Publish GitHub Release asset
-        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        if: >-
+          startsWith(github.ref, 'refs/tags/') ||
+          github.ref == 'refs/heads/main' ||
+          github.ref == 'refs/heads/add-flipper-zero-app'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'flipper-fap-latest' }}
-          name: K2 RFID FAP (${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest from main' }})
+          name: K2 RFID FAP (${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('latest — {0}', github.ref_name) }})
           body: |
             Pre-built **K2 RFID Writer** Flipper external app.
 
+            **Direct download (no zip):** `${{ github.server_url }}/${{ github.repository }}/releases/download/${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'flipper-fap-latest' }}/k2_rfid.fap`
+
+            Use this URL for the [Flipper Application Catalog](https://catalog.flipperzero.one/) — GitHub Actions artifacts are always zipped; Release assets are served as plain `.fap` files.
+
             - Firmware SDK: [flipperzero-firmware](${{ env.FIRMWARE_REPO }}) @ `${{ env.FIRMWARE_REF }}`
             - API version: **${{ env.FIRMWARE_API_VERSION }}**
+            - Branch: `${{ github.ref_name }}`
             - Commit: `${{ github.sha }}`
 
             Install: copy `k2_rfid.fap` to `SD:/ext/apps/NFC/k2_rfid.fap`

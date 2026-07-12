@@ -61,4 +61,4 @@ See `README.md`. Requires copying `flipper/` into Momentum `applications_user/k2
 - Workflow: `.github/workflows/build-fap.yml`
 - Triggers: push to `main` / `add-flipper-zero-app` (when `Flipper/` changes), tags `v*` / `flipper-*`, manual dispatch
 - SDK: official `flipperzero-firmware` @ `8622f1a2b83d8f4918dd5fa3f43de963f6d6f819` (API 87.1)
-- Artifacts: every successful run; GitHub Release on `main` (`flipper-fap-latest`) and version tags
+- Output: `k2_rfid.fap` published to GitHub Release `flipper-fap-latest` (prerelease, updated each build) on `main` and `add-flipper-zero-app`; version tags publish named releases. Direct URL: `https://github.com/DnG-Crafts/K2-RFID/releases/download/flipper-fap-latest/k2_rfid.fap` (no zip — use for Flipper Application Catalog, not Actions artifacts)
