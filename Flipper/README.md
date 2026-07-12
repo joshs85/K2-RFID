@@ -7,11 +7,11 @@ Flipper Zero external app (FAP) for programming Creality K2/K1/HI/CFS filament R
 - Configure material (66 Creality K2 filaments), weight, color, printer type, and serial
 - **Write Tag** — encrypts sector 1 and writes sector 2
 - **Read Tag** — decrypts and displays tag payload
-- Works as a standard FAP on **Momentum** firmware (and other builds with a compatible NFC API)
+- Works on **official Flipper Zero firmware API 87.1+** and compatible custom builds (Momentum, Unleashed, etc.) — not Momentum-only
 
 ## Requirements
 
-- Flipper Zero with [Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware)
+- Flipper Zero running **official OFW API 87.1 or newer**, or a custom firmware on the same API (e.g. [Momentum](https://github.com/Next-Flip/Momentum-Firmware), Unleashed)
 - Blank MIFARE Classic 1K tags (factory keys `FF FF FF FF FF FF`)
 - Two tags per spool (one on each side), identical content
 
@@ -83,7 +83,9 @@ After merge to `main`, use a version tag (e.g. `flipper-v1.0`) for a stable rele
 
 ## Build & Install (local)
 
-1. Clone Momentum firmware (must match the version on your Flipper):
+Build against the same firmware API version as your device (check **Settings → About**). The example below uses Momentum; official OFW or Unleashed work the same way if the API matches.
+
+1. Clone firmware (example: Momentum — must match the version on your Flipper):
 
 ```bash
 git clone --recursive https://github.com/Next-Flip/Momentum-Firmware.git
