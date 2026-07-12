@@ -112,6 +112,7 @@ typedef struct {
     Submenu* batch_menu;
     Submenu* date_menu;
     VariableItemList* config;
+    VariableItem* config_items[K2CfgFieldCount];
     Popup* popup;
     TextBox* text_box;
     TextInput* text_input;
@@ -272,7 +273,7 @@ static void k2_date_set_display_text(K2App* app, char* text, size_t text_size) {
 }
 
 static void k2_config_refresh_item(K2App* app, K2CfgField field) {
-    VariableItem* item = variable_item_list_get(app->config, field);
+    VariableItem* item = app->config_items[field];
     if(!item) return;
 
     switch(field) {
@@ -796,51 +797,58 @@ static bool k2_custom_event_callback(void* context, uint32_t event) {
 
 static void k2_config_build(K2App* app) {
     variable_item_list_reset(app->config);
-    variable_item_list_set_header(app->config, "Configure Tag");
 
-    VariableItem* date = variable_item_list_add(app->config, "Date", 0, NULL, app);
+    app->config_items[K2CfgDate] = variable_item_list_add(app->config, "Date", 0, NULL, app);
     char date_text[16];
     k2_date_set_display_text(app, date_text, sizeof(date_text));
-    variable_item_set_current_value_text(date, date_text);
+    variable_item_set_current_value_text(app->config_items[K2CfgDate], date_text);
 
-    VariableItem* supplier = variable_item_list_add(app->config, "Supplier", 0, NULL, app);
+    app->config_items[K2CfgSupplier] =
+        variable_item_list_add(app->config, "Supplier", 0, NULL, app);
     char supplier_text[24];
     k2_supplier_set_display_text(app, supplier_text, sizeof(supplier_text));
-    variable_item_set_current_value_text(supplier, supplier_text);
+    variable_item_set_current_value_text(app->config_items[K2CfgSupplier], supplier_text);
 
-    VariableItem* batch = variable_item_list_add(app->config, "Batch", 0, NULL, app);
+    app->config_items[K2CfgBatch] = variable_item_list_add(app->config, "Batch", 0, NULL, app);
     char batch_text[24];
     k2_batch_set_display_text(app, batch_text, sizeof(batch_text));
-    variable_item_set_current_value_text(batch, batch_text);
+    variable_item_set_current_value_text(app->config_items[K2CfgBatch], batch_text);
 
-    VariableItem* material = variable_item_list_add(app->config, "Material", 0, NULL, app);
+    app->config_items[K2CfgMaterial] =
+        variable_item_list_add(app->config, "Material", 0, NULL, app);
     char material_text[32];
     k2_material_set_display_text(app, material_text, sizeof(material_text));
-    variable_item_set_current_value_text(material, material_text);
+    variable_item_set_current_value_text(app->config_items[K2CfgMaterial], material_text);
 
-    VariableItem* weight = variable_item_list_add(
+    app->config_items[K2CfgWeight] = variable_item_list_add(
         app->config, "Weight", k2_tag_weight_count(), k2_config_weight_changed, app);
-    variable_item_set_current_value_index(weight, app->tag_config.weight_index);
-    variable_item_set_current_value_text(weight, k2_tag_weight_label(app->tag_config.weight_index));
+    variable_item_set_current_value_index(
+        app->config_items[K2CfgWeight], app->tag_config.weight_index);
+    variable_item_set_current_value_text(
+        app->config_items[K2CfgWeight], k2_tag_weight_label(app->tag_config.weight_index));
 
-    VariableItem* color = variable_item_list_add(app->config, "Color", 0, NULL, app);
+    app->config_items[K2CfgColor] = variable_item_list_add(app->config, "Color", 0, NULL, app);
     char color_text[24];
     k2_color_set_display_text(app, color_text, sizeof(color_text));
-    variable_item_set_current_value_text(color, color_text);
+    variable_item_set_current_value_text(app->config_items[K2CfgColor], color_text);
 
-    VariableItem* serial = variable_item_list_add(app->config, "Serial", 0, NULL, app);
+    app->config_items[K2CfgSerial] = variable_item_list_add(app->config, "Serial", 0, NULL, app);
     char serial_text[16];
     snprintf(serial_text, sizeof(serial_text), "%06lu", (unsigned long)app->tag_config.serial);
-    variable_item_set_current_value_text(serial, serial_text);
+    variable_item_set_current_value_text(app->config_items[K2CfgSerial], serial_text);
 
-    VariableItem* reserve = variable_item_list_add(app->config, "Reserve", 0, NULL, app);
-    variable_item_set_current_value_text(reserve, app->tag_config.reserve);
-
-    VariableItem* printer = variable_item_list_add(
-        app->config, "Printer", k2_tag_printer_count(), k2_config_printer_changed, app);
-    variable_item_set_current_value_index(printer, app->tag_config.printer_index);
+    app->config_items[K2CfgReserve] =
+        variable_item_list_add(app->config, "Reserve", 0, NULL, app);
     variable_item_set_current_value_text(
-        printer, k2_tag_printer_suffix(app->tag_config.printer_index));
+        app->config_items[K2CfgReserve], app->tag_config.reserve);
+
+    app->config_items[K2CfgPrinter] = variable_item_list_add(
+        app->config, "Printer", k2_tag_printer_count(), k2_config_printer_changed, app);
+    variable_item_set_current_value_index(
+        app->config_items[K2CfgPrinter], app->tag_config.printer_index);
+    variable_item_set_current_value_text(
+        app->config_items[K2CfgPrinter],
+        k2_tag_printer_suffix(app->tag_config.printer_index));
 }
 
 static K2App* k2_app_alloc(void) {
