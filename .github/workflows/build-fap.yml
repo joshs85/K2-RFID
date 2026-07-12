@@ -74,15 +74,13 @@ jobs:
           ./fbt "fap_${{ env.APP_ID }}"
           FAP_PATH="build/f7-firmware-D/.extapps/${{ env.APP_ID }}.fap"
           test -f "$FAP_PATH"
-          mkdir -p ../dist
-          cp "$FAP_PATH" "../dist/${{ env.APP_ID }}_ofw-api-${API_VERSION}.fap"
-          cp "$FAP_PATH" "../dist/${{ env.APP_ID }}.fap"
+          cp "$FAP_PATH" "../${{ env.APP_ID }}.fap"
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.APP_ID }}-ofw-api-${{ env.FIRMWARE_API_VERSION }}-${{ github.sha }}
-          path: dist/*.fap
+          name: ${{ env.APP_ID }}
+          path: ${{ env.APP_ID }}.fap
           if-no-files-found: error
           retention-days: 90
 
@@ -103,7 +101,7 @@ jobs:
 
             **Compatibility:** FAP API must match your device firmware API (Settings → About → API version).
             Built against official OFW release; also works on Momentum/Unleashed when they share the same API.
-          files: dist/*.fap
+          files: ${{ env.APP_ID }}.fap
           prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
           make_latest: ${{ startsWith(github.ref, 'refs/tags/') }}
           overwrite_files: true
