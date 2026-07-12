@@ -127,6 +127,7 @@ typedef struct {
     size_t batch_index;
     K2View current_view;
     volatile bool worker_stop;
+    volatile bool config_loaded;
     K2TextInputTarget text_input_target;
     char text_input_buffer[16];
     char result_text[256];
@@ -696,13 +697,15 @@ static int32_t k2_read_worker(void* context) {
     K2TagResult result = k2_tag_read(app->nfc, tag_data, sizeof(tag_data));
     if(result == K2TagOk) {
         if(k2_tag_parse_payload(tag_data, &app->tag_config)) {
-            k2_config_refresh(app);
+            app->config_loaded = true;
             snprintf(
                 app->result_text,
                 sizeof(app->result_text),
-                "Read OK\nConfig loaded.\n\nTag data:\n%s",
+                "Read OK\nSerial: %06lu\nConfig loaded.\n\nTag data:\n%s",
+                (unsigned long)app->tag_config.serial,
                 tag_data);
         } else {
+            app->config_loaded = false;
             snprintf(
                 app->result_text,
                 sizeof(app->result_text),
@@ -789,6 +792,10 @@ static bool k2_custom_event_callback(void* context, uint32_t event) {
     K2App* app = context;
     if(event == K2EventDone) {
         k2_stop_worker(app);
+        if(app->config_loaded) {
+            k2_config_refresh(app);
+            app->config_loaded = false;
+        }
         k2_show_text(app);
         return true;
     }
@@ -870,6 +877,7 @@ static K2App* k2_app_alloc(void) {
     app->worker = NULL;
     app->current_view = K2ViewMenu;
     app->worker_stop = false;
+    app->config_loaded = false;
     app->material_index = 0;
     app->color_index = 0;
     app->supplier_index = 0;

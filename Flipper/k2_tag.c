@@ -183,12 +183,17 @@ bool k2_tag_parse_payload(const char* data, K2TagConfig* config) {
     if(weight_idx < 0) return false;
     config->weight_index = (uint8_t)weight_idx;
 
-    for(size_t i = 0; i < 6; i++) {
-        if(!isdigit((unsigned char)data[28 + i])) return false;
-    }
     char serial_str[7];
     memcpy(serial_str, data + 28, 6);
     serial_str[6] = '\0';
+    for(size_t i = 0; i < 6; i++) {
+        unsigned char ch = (unsigned char)serial_str[i];
+        if(ch == ' ' || ch == '\0') {
+            serial_str[i] = '\0';
+            break;
+        }
+        if(!isdigit(ch)) return false;
+    }
     config->serial = (uint32_t)strtoul(serial_str, NULL, 10);
     if(config->serial < 1) config->serial = 1;
 
@@ -379,11 +384,9 @@ K2TagResult k2_tag_read(Nfc* nfc, char* out, size_t out_size) {
     memcpy(out, buffer, copy_len);
     out[copy_len] = '\0';
 
-    for(size_t i = 0; out[i] != '\0'; i++) {
-        if(out[i] == ' ') {
-            out[i] = '\0';
-            break;
-        }
+    size_t end = strlen(out);
+    while(end > 0 && out[end - 1] == ' ') {
+        out[--end] = '\0';
     }
 
     if(strlen(out) < 40) return K2TagErrorInvalid;
