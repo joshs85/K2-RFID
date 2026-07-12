@@ -1,0 +1,17 @@
+App(
+    appid="k2_rfid",
+    name="K2 RFID Writer",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="k2_rfid_app",
+    requires=[
+        "gui",
+        "nfc",
+    ],
+    stack_size=6 * 1024,
+    fap_icon="assets/icon.png",
+    fap_category="NFC",
+    fap_version=(1, 0),
+    fap_description="Write Creality K2/K1/CFS MIFARE Classic filament tags",
+    fap_author="DnG-Crafts / Flipper port",
+    fap_weburl="https://github.com/DnG-Crafts/K2-RFID",
+)

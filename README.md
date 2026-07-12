@@ -17,6 +17,10 @@ The tags required are <a href=https://en.wikipedia.org/wiki/MIFARE>MIFARE</a> Cl
 <br>
 <br>
 
+<a href=https://github.com/DnG-Crafts/K2-RFID/tree/main/Flipper>Flipper Zero Code</a>
+<br>
+<br>
+
 [![https://www.youtube.com/watch?v=6EA4t7zgq90](https://img.youtube.com/vi/6EA4t7zgq90/0.jpg)](https://www.youtube.com/watch?v=6EA4t7zgq90)
 
 https://www.youtube.com/watch?v=6EA4t7zgq90<br>
