@@ -1,0 +1,109 @@
+name: Build Flipper FAP
+
+on:
+  push:
+    branches:
+      - main
+      - add-flipper-zero-app
+    paths:
+      - "Flipper/**"
+      - ".github/workflows/build-fap.yml"
+    tags:
+      - "v*"
+      - "flipper-*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  # Official OFW release pinned for reproducible builds (API 87.1 as of 2025-12-05).
+  # Matches Momentum/Unleashed builds on the same API version; rebuild when you bump firmware.
+  FIRMWARE_REPO: https://github.com/flipperdevices/flipperzero-firmware.git
+  FIRMWARE_REF: 8622f1a2b83d8f4918dd5fa3f43de963f6d6f819
+  APP_ID: k2_rfid
+  APP_SRC_DIR: Flipper
+  FBT_NO_SYNC: "1"
+  FBT_GIT_SUBMODULE_SHALLOW: "1"
+
+jobs:
+  build-fap:
+    name: Build k2_rfid.fap
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout app repository
+        uses: actions/checkout@v4
+
+      - name: Cache firmware checkout
+        uses: actions/cache@v4
+        id: firmware-cache
+        with:
+          path: firmware
+          key: firmware-${{ env.FIRMWARE_REF }}-${{ runner.os }}-v1
+
+      - name: Clone Flipper firmware SDK
+        if: steps.firmware-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone --filter=blob:none "${{ env.FIRMWARE_REPO }}" firmware
+          cd firmware
+          git checkout "${{ env.FIRMWARE_REF }}"
+          git submodule update --init --recursive --depth 1
+
+      - name: Ensure firmware submodules are present
+        if: steps.firmware-cache.outputs.cache-hit == 'true'
+        working-directory: firmware
+        run: git submodule update --init --recursive --depth 1
+
+      - name: Cache FBT toolchain
+        uses: actions/cache@v4
+        with:
+          path: firmware/toolchain
+          key: fbt-toolchain-${{ env.FIRMWARE_REF }}-${{ runner.os }}-v1
+
+      - name: Copy app into applications_user
+        run: |
+          rm -rf "firmware/applications_user/${{ env.APP_ID }}"
+          cp -r "${{ env.APP_SRC_DIR }}" "firmware/applications_user/${{ env.APP_ID }}"
+
+      - name: Build FAP with fbt
+        working-directory: firmware
+        run: |
+          API_VERSION=$(awk -F',' 'NR == 2 {print $3}' targets/f7/api_symbols.csv)
+          echo "FIRMWARE_API_VERSION=${API_VERSION}" >> "$GITHUB_ENV"
+          ./fbt "fap_${{ env.APP_ID }}"
+          FAP_PATH="build/f7-firmware-D/.extapps/${{ env.APP_ID }}.fap"
+          test -f "$FAP_PATH"
+          mkdir -p ../dist
+          cp "$FAP_PATH" "../dist/${{ env.APP_ID }}_ofw-api-${API_VERSION}.fap"
+          cp "$FAP_PATH" "../dist/${{ env.APP_ID }}.fap"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_ID }}-ofw-api-${{ env.FIRMWARE_API_VERSION }}-${{ github.sha }}
+          path: dist/*.fap
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Publish GitHub Release asset
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'flipper-fap-latest' }}
+          name: K2 RFID FAP (${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest from main' }})
+          body: |
+            Pre-built **K2 RFID Writer** Flipper external app.
+
+            - Firmware SDK: [flipperzero-firmware](${{ env.FIRMWARE_REPO }}) @ `${{ env.FIRMWARE_REF }}`
+            - API version: **${{ env.FIRMWARE_API_VERSION }}**
+            - Commit: `${{ github.sha }}`
+
+            Install: copy `k2_rfid.fap` to `SD:/ext/apps/NFC/k2_rfid.fap`
+
+            **Compatibility:** FAP API must match your device firmware API (Settings → About → API version).
+            Built against official OFW release; also works on Momentum/Unleashed when they share the same API.
+          files: dist/*.fap
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          make_latest: ${{ startsWith(github.ref, 'refs/tags/') }}
+          overwrite_files: true

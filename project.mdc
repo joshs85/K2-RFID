@@ -1,0 +1,64 @@
+# Flipper-Creality-NFCTagWriter
+
+## K2 RFID Flipper Plugin (2026-07-03)
+
+Port of [DnG-Crafts/K2-RFID](https://github.com/DnG-Crafts/K2-RFID) to a Flipper Zero external app (FAP) for Momentum firmware.
+
+### Location
+- FAP source: `flipper/`
+- Pre-built FAP (API 87.1): `dist/k2_rfid.fap`
+- Original multi-platform project: `upstream/`
+
+### Capabilities
+- Write/read Creality K2/K1/HI/CFS MIFARE Classic 1K filament tags
+- AES sector-1 encryption matching upstream tools (UID-derived key)
+- 66 K2 filaments from `upstream/db/k2.json`
+- Configure weight, color (preset list + custom hex), printer suffix, serial
+- **Full tag payload configure** (2026-07-12): date, supplier, batch, material, color, weight, serial, reserve, printer
+
+### Security
+- No network access; all crypto runs on-device
+- No secrets stored in the app (AES keys are fixed constants from upstream spec)
+
+### Color selection (2026-07-12)
+- **Configure Tag → Color:** Opens submenu of 14 named presets (White, Black, Red, Blue, Green, Yellow, Orange, Purple, Gray, Light Gray, Dark Gray, Pink, Cyan, Creality Red) plus **Custom**.
+- **Custom:** Hex keyboard opens with current `color_hex` pre-filled (from tag read or prior selection).
+- **Read Tag:** Parsed color matches a preset when possible; otherwise stored as custom hex and shown as `Custom RRGGBB`.
+- **Write:** Always uses `tag_config.color_hex` (preset or custom).
+
+### Read-to-Configure (2026-07-12)
+Successful reads parse tag payload into `tag_config` and refresh the Configure Tag UI.
+- **Fields populated:** date prefix, supplier ID, batch ID, material ID, color (RRGGBB), weight, serial, reserve, printer (when sector 2 is readable).
+- **Unknown materials:** Configure shows raw material ID if not in the 66-filament database; use Material → Custom to keep editing.
+
+### Expanded Configure Tag GUI (2026-07-12)
+All ASCII payload fields are exposed in **Configure Tag** with upstream defaults preserved:
+
+| Field | Default | UI |
+|-------|---------|-----|
+| Date | Auto (RTC at write) | Submenu: Auto / Custom (5 chars) |
+| Supplier | `0276` Creality | Preset + Custom (4 chars) |
+| Batch | `A2` | Preset + Custom (2 chars) |
+| Material | First preset (`01001`) | 66 presets + Custom (5 alnum) |
+| Weight | 500 G (`0165`) | Left/Right cycle |
+| Color | White (`FFFFFF`) | 14 presets + Custom hex |
+| Serial | `000001` | Number input |
+| Reserve | `00000000000000` | Text input (14 chars) |
+| Printer | K2 | Left/Right cycle (K2/K1/HI) |
+
+- **Write:** `k2_tag_build_payload` uses all config values; empty date triggers RTC encoding.
+- **Read:** `k2_tag_parse_payload` fills every field (no longer requires hardcoded `0276A2`).
+
+### Bug fixes (2026-07-03)
+- **Serial on write:** Removed random serial generation in Write Tag; configured serial is now written (matches upstream).
+- **Date prefix:** Replaced hardcoded `AB124` with `k2_tag_encode_date()` using RTC at write time (format: M+DD+YY, e.g. `7A326` for 2026-07-03).
+- **CFS layout:** Verified payload layout matches upstream; 40-char CFS readout omits sector-2 printer suffix by design.
+
+### Build
+See `README.md`. Requires copying `flipper/` into Momentum `applications_user/k2_rfid` and running `./fbt fap_k2_rfid` against firmware matching the device.
+
+### CI build (2026-07-12)
+- Workflow: `.github/workflows/build-fap.yml`
+- Triggers: push to `main` / `add-flipper-zero-app` (when `Flipper/` changes), tags `v*` / `flipper-*`, manual dispatch
+- SDK: official `flipperzero-firmware` @ `8622f1a2b83d8f4918dd5fa3f43de963f6d6f819` (API 87.1)
+- Artifacts: every successful run; GitHub Release on `main` (`flipper-fap-latest`) and version tags

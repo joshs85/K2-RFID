@@ -17,7 +17,7 @@ The tags required are <a href=https://en.wikipedia.org/wiki/MIFARE>MIFARE</a> Cl
 <br>
 <br>
 
-<a href=https://github.com/DnG-Crafts/K2-RFID/tree/main/Flipper>Flipper Zero Code</a>
+<a href=https://github.com/DnG-Crafts/K2-RFID/tree/main/Flipper>Flipper Zero Code</a> — pre-built `.fap` from [Actions](https://github.com/DnG-Crafts/K2-RFID/actions/workflows/build-fap.yml) or [Releases](https://github.com/DnG-Crafts/K2-RFID/releases)
 <br>
 <br>
 

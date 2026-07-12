@@ -15,7 +15,23 @@ Flipper Zero external app (FAP) for programming Creality K2/K1/HI/CFS filament R
 - Blank MIFARE Classic 1K tags (factory keys `FF FF FF FF FF FF`)
 - Two tags per spool (one on each side), identical content
 
-## Build & Install
+## Pre-built FAP (GitHub Actions)
+
+Every push to `main` or `add-flipper-zero-app` that changes `Flipper/` triggers a CI build.
+
+1. Open the repository **Actions** tab → **Build Flipper FAP** → latest green run.
+2. Download the workflow **artifact** (`.fap` files, named with API version).
+3. On pushes to `main` or version tags, the same `.fap` is also attached to [GitHub Releases](https://github.com/DnG-Crafts/K2-RFID/releases) (`flipper-fap-latest` for main, or the tag name).
+
+CI builds against **official Flipper firmware** `release` (pinned commit, currently API **87.1**). That matches Momentum builds on the same API; check **Settings → About** on your Flipper and use a build whose API version matches.
+
+Install the downloaded file:
+
+```text
+k2_rfid.fap  →  SD:/ext/apps/NFC/k2_rfid.fap
+```
+
+## Build & Install (local)
 
 1. Clone Momentum firmware (must match the version on your Flipper):
 
