@@ -10,6 +10,8 @@
 #define K2_TAG_SUPPLIER_LEN 4
 #define K2_TAG_BATCH_LEN 2
 #define K2_TAG_RESERVE_LEN 14
+#define K2_TAG_SERIAL_OFFSET 28
+#define K2_TAG_SERIAL_LEN 6
 
 typedef struct {
     /** Empty string = use RTC at write time. */

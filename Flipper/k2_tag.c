@@ -152,14 +152,22 @@ static int k2_tag_find_printer_index(const char* suffix) {
     return -1;
 }
 
+static size_t k2_tag_payload_len(const char* data) {
+    size_t len = 0;
+    while(len < K2_TAG_DATA_SIZE && data[len] != '\0') {
+        len++;
+    }
+    return len;
+}
+
 bool k2_tag_parse_payload(const char* data, K2TagConfig* config) {
     furi_check(data);
     furi_check(config);
 
-    size_t len = strlen(data);
-    if(len < 34) return false;
     if(data[11] != '1') return false;
     if(data[17] != '0') return false;
+
+    size_t len = k2_tag_payload_len(data);
 
     strncpy(config->date, data, K2_TAG_DATE_LEN);
     config->date[K2_TAG_DATE_LEN] = '\0';
@@ -183,17 +191,12 @@ bool k2_tag_parse_payload(const char* data, K2TagConfig* config) {
     if(weight_idx < 0) return false;
     config->weight_index = (uint8_t)weight_idx;
 
-    char serial_str[7];
-    memcpy(serial_str, data + 28, 6);
-    serial_str[6] = '\0';
-    for(size_t i = 0; i < 6; i++) {
-        unsigned char ch = (unsigned char)serial_str[i];
-        if(ch == ' ' || ch == '\0') {
-            serial_str[i] = '\0';
-            break;
-        }
-        if(!isdigit(ch)) return false;
+    for(size_t i = 0; i < K2_TAG_SERIAL_LEN; i++) {
+        if(!isdigit((unsigned char)data[K2_TAG_SERIAL_OFFSET + i])) return false;
     }
+    char serial_str[K2_TAG_SERIAL_LEN + 1];
+    memcpy(serial_str, data + K2_TAG_SERIAL_OFFSET, K2_TAG_SERIAL_LEN);
+    serial_str[K2_TAG_SERIAL_LEN] = '\0';
     config->serial = (uint32_t)strtoul(serial_str, NULL, 10);
     if(config->serial < 1) config->serial = 1;
 
@@ -379,16 +382,20 @@ K2TagResult k2_tag_read(Nfc* nfc, char* out, size_t out_size) {
         }
     }
 
+    for(size_t i = 0; i < K2_TAG_DATA_SIZE; i++) {
+        if(buffer[i] == '\0') buffer[i] = ' ';
+    }
+
     size_t copy_len = K2_TAG_DATA_SIZE;
     if(copy_len >= out_size) copy_len = out_size - 1;
     memcpy(out, buffer, copy_len);
     out[copy_len] = '\0';
 
-    size_t end = strlen(out);
+    size_t end = copy_len;
     while(end > 0 && out[end - 1] == ' ') {
         out[--end] = '\0';
     }
 
-    if(strlen(out) < 40) return K2TagErrorInvalid;
+    if(end < 40) return K2TagErrorInvalid;
     return K2TagOk;
 }
